@@ -2,7 +2,24 @@ import streamlit as st
 import pandas as pd
 import io
 from file_processor import FileProcessor
+import base64
 
+def add_bg_image():
+    with open("image.jpg", "rb") as f:
+        data = f.read()
+    encoded = base64.b64encode(data).decode()
+    
+    st.markdown(f"""
+    <style>
+    .stApp {{
+        background-image: url(data:image/jpeg;base64,{encoded});
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+add_bg_image()
 # Page configuration
 st.title("Hello :) Vijai Bhushan Sharma !")
 st.set_page_config(page_title="Coverage Data Extractor", page_icon="📊", layout="wide")
@@ -125,18 +142,9 @@ def display_excel_sheet(excel_file, sheet_name, max_rows, format_type, unique_ke
 def calculate_and_display_averages(data_rows, format_type, unique_key, total_row=None):
     """Calculate and display column-wise averages with Total section values"""
     try:
-        st.markdown("#### 📊 Coverage Averages")
+        st.markdown("#### Coverage Averages")
         
         if format_type == "1-column":
-            # Get Total value if available
-            total_value = None
-            if total_row is not None and len(total_row) > 1 and pd.notna(total_row.iloc[1]):
-                try:
-                    total_value = float(total_row.iloc[1])
-                except (ValueError, TypeError):
-                    pass
-            
-            # Calculate average from visible data
             coverage_values = []
             for row in data_rows:
                 if len(row) > 1 and pd.notna(row.iloc[1]):
@@ -148,16 +156,10 @@ def calculate_and_display_averages(data_rows, format_type, unique_key, total_row
             # Create summary data
             summary_data = []
             
-            if total_value is not None:
-                summary_data.append({
-                    'Coverage Type': '📋 Total (Pre-given)',
-                    'Average (%)': f"{total_value:.2f}"
-                })
-            
             if coverage_values:
                 avg = sum(coverage_values) / len(coverage_values)
                 summary_data.append({
-                    'Coverage Type': '🧮 Calculated Average',
+                    'Coverage Type': 'Calculated Average',
                     'Average (%)': f"{avg:.2f}"
                 })
             
@@ -167,19 +169,6 @@ def calculate_and_display_averages(data_rows, format_type, unique_key, total_row
         
         else:  # 4-column format
             summary_data = []
-            
-            # Get Total values if available
-            if total_row is not None and len(total_row) > 4:
-                for col, name in [(1, 'Y'), (2, 'M'), (3, 'C'), (4, 'K')]:
-                    if pd.notna(total_row.iloc[col]):
-                        try:
-                            total_val = float(total_row.iloc[col])
-                            summary_data.append({
-                                'Coverage Type': f'📋 {name} Total (Pre-given)',
-                                'Average (%)': f"{total_val:.2f}"
-                            })
-                        except (ValueError, TypeError):
-                            continue
             
             # Calculate averages from visible data
             for col, name in [(1, 'Y'), (2, 'M'), (3, 'C'), (4, 'K')]:
@@ -194,7 +183,7 @@ def calculate_and_display_averages(data_rows, format_type, unique_key, total_row
                 if values:
                     avg = sum(values) / len(values)
                     summary_data.append({
-                        'Coverage Type': f'🧮 {name} Calculated Average',
+                        'Coverage Type': f'{name} Calculated Average',
                         'Average (%)': f"{avg:.2f}"
                     })
             
@@ -279,7 +268,7 @@ if st.session_state.results:
             if '1-column' in format_groups:
                 with tabs[tab_index]:
                     st.markdown("### 📊 Mono Coverage Data")
-                    st.markdown("*Files with format: Section | Coverage(%) - **Total section always visible***")
+                    st.markdown("*Files with format: Section | Coverage(%)")
                     render_format_tab('1-column', format_groups['1-column'], 'mono')
                 tab_index += 1
             
@@ -294,11 +283,11 @@ if st.session_state.results:
             # Single format case
             if '1-column' in format_groups:
                 st.markdown("### 📊 Mono Coverage Data")
-                st.markdown("*Files with format: Section | Coverage(%) - **Total section always visible***")
+                st.markdown("*Files with format: Section | Coverage(%) ")
                 render_format_tab('1-column', format_groups['1-column'], 'mono_only')
             elif '4-column' in format_groups:
                 st.markdown("### 📈 Multi Coverage Percentage Data")
-                st.markdown("*Files with format: Section | Coverage Y(%) | Coverage M(%) | Coverage C(%) | Coverage K(%) - **Total section always visible***")
+                st.markdown("*Files with format: Section | Coverage Y(%) | Coverage M(%) | Coverage C(%) | Coverage K(%)")
                 render_format_tab('4-column', format_groups['4-column'], 'multi_only')
     
     # Reset button
