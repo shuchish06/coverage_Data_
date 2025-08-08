@@ -196,27 +196,16 @@ def calculate_and_display_averages(data_rows, format_type, unique_key, total_row
 
 # Header
 st.title("Coverage Data Extractor")
-st.markdown("Upload text files or zip folder to extract coverage data (supports both single and multi-column formats)")
+st.markdown("Upload multiple text files to extract coverage data (supports both single and multi-column formats)")
 
 # File upload
-upload_option = st.radio("Choose upload method:", ["Multiple Text Files", "Zip Folder"], horizontal=True)
-
-if upload_option == "Multiple Text Files":
-    uploaded_files = st.file_uploader("Choose text files", type=['txt', 'log', 'dat'], accept_multiple_files=True)
-    if uploaded_files and st.button("Process Files", type="primary"):
-        with st.spinner("Processing files..."):
-            processor = FileProcessor()
-            st.session_state.processor = processor
-            st.session_state.results = processor.process_uploaded_files(uploaded_files)
-            st.rerun()
-else:
-    uploaded_zip = st.file_uploader("Choose zip file", type=['zip'])
-    if uploaded_zip and st.button("Process Zip File", type="primary"):
-        with st.spinner("Processing zip file..."):
-            processor = FileProcessor()
-            st.session_state.processor = processor
-            st.session_state.results = processor.process_zip_file(uploaded_zip)
-            st.rerun()
+uploaded_files = st.file_uploader("Choose multiple text files", type=['txt', 'log', 'dat'], accept_multiple_files=True)
+if uploaded_files and st.button("Process Files", type="primary"):
+    with st.spinner("Processing files..."):
+        processor = FileProcessor()
+        st.session_state.processor = processor
+        st.session_state.results = processor.process_uploaded_files(uploaded_files)
+        st.rerun()
 
 # Display results
 if st.session_state.results:
@@ -306,10 +295,7 @@ if not st.session_state.results:
     with col1:
         st.markdown("""
         **📤 Upload Process:**
-        1. Choose upload method (Files or Zip)
-        2. Select your coverage data files
-        3. Click Process to extract data
-        4. Use format-specific tabs to work with data
+        1. Select multiple text files (not folders)
+        2. Click Process to extract data
+        3. Use format-specific tabs to work with data
         """)
-    
-   
