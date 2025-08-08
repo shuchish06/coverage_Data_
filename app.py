@@ -4,6 +4,7 @@ import io
 from file_processor import FileProcessor
 
 # Page configuration
+st.title("Hello :) Vijai Bhushan Sharma !")
 st.set_page_config(page_title="Coverage Data Extractor", page_icon="📊", layout="wide")
 
 # Initialize session state
